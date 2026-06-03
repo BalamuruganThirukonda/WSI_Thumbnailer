@@ -45,3 +45,39 @@ WATCH_FOLDERS = [
         "days": 10
     }
 ]
+
+
+## 🔧 Available Handlers
+
+| Handler Name         | Description                         |
+| -------------------- | ----------------------------------- |
+| thumbnail_on_create  | Creates thumbnail for new WSI files |
+| delete_if_older_than | Deletes old WSI files after N days  |
+
+
+## 📁 Folder Options
+| Key             | Description                |
+| --------------- | -------------------------- |
+| path            | Folder to watch            |
+| handler         | Function name (string)     |
+| output_dir      | Thumbnail output folder    |
+| exclude_folders | Folders to ignore          |
+| days            | Age threshold for deletion |
+
+
+## ▶️ How to Run
+
+### Windows (recommended)
+
+'''bash
+python main.py
+'''
+
+or run .bat file:
+run_thumbnailer.bat
+
+## ⚠️ Notes
+- Always ensure OpenSlide is installed correctly
+- Use recursive=True if processing subfolders
+- Avoid placing files in "failed" folders (if excluded)
+
