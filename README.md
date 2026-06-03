@@ -45,6 +45,7 @@ WATCH_FOLDERS = [
         "days": 10
     }
 ]
+```
 
 
 ## 🔧 Available Handlers
@@ -69,9 +70,9 @@ WATCH_FOLDERS = [
 
 ### Windows (recommended)
 
-'''bash
+```bash
 python main.py
-'''
+```
 
 or run .bat file:
 run_thumbnailer.bat
