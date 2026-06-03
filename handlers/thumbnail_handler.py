@@ -1,7 +1,22 @@
 import os
 import time
+import platform
+import ctypes
+import logging
+from pathlib import Path
 from datetime import datetime, timedelta
 from PIL import Image
+
+# ---------------- DLL fix for Windows ----------------
+openslide_dll_path = r"C:/Users/Public/OpenSlide/openslide-bin-4.0.0.2-windows-x64/bin"
+if platform.system() == "Windows" and hasattr(os, "add_dll_directory") and os.path.exists(openslide_dll_path):
+    try:
+        os.environ["PATH"] = str(openslide_dll_path) + os.pathsep + os.environ.get("PATH", "")
+        with os.add_dll_directory(openslide_dll_path):
+            ctypes.cdll.LoadLibrary(str(Path(openslide_dll_path) / "libopenslide-1.dll"))
+    except Exception as e:
+        logging.warning(f"Could not load OpenSlide DLLs: {e}")
+
 import openslide
 
 # Supported WSI file extensions
@@ -125,26 +140,38 @@ def thumbnail_on_create(file_path, output_dir, thumb_size=1024):
 def scan_folder(folder_path, handler, **kwargs):
     """
     Scan a folder recursively and apply a handler to each WSI file.
-
-    Args:
-        folder_path (str): Folder to scan.
-        handler (function): Function to handle each WSI file.
-        **kwargs: Additional keyword arguments for the handler.
-
-    Returns:
-        None
     """
+
     print(f"[SCAN] Checking folder: {folder_path}")
+
+    exclude_folders = [
+        f.lower() for f in kwargs.get("exclude_folders", [])
+    ]
+
     for root, dirs, files in os.walk(folder_path):
+
+        dirs[:] = [
+            d for d in dirs
+            if d.lower() not in exclude_folders
+        ]
+
         for file in files:
+
             file_path = os.path.join(root, file)
+
             if not file_path.lower().endswith(WSI_EXTS):
                 continue
+
             try:
-                handler(file_path, **kwargs)
+                clean_kwargs = {
+                    k: v for k, v in kwargs.items()
+                    if k != "exclude_folders"
+                }
+
+                handler(file_path, **clean_kwargs)
+
             except Exception as e:
                 print(f"[ERROR] {file_path} | {e}")
-
 
 # -----------------------------
 # Delete old WSI files and optionally thumbnails
